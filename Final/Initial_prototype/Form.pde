@@ -1,0 +1,156 @@
+class Form {
+  int sides = 8; //  oat[] x = new  oat[sides];
+  float [] x1 = new float[sides]; // New X sides.
+  float [] y1 = new  float[sides]; // New Y sides.
+  float variance = 8;  
+  int radius = 180; // Radius of form
+  PVector centerPoint; // Find center point
+  float gradientIndex=0; // Gradient for death.
+  float gradientIndex1 = 0.3; // Gradient for breathing.
+
+
+  color gradientColor;
+  color gradientColorTwo;
+
+  Form(int index)
+  {
+    centerPoint = new PVector(width/2, height/2); // Display the form in the center point.
+    if (index ==0)
+    {
+      evolveInitial(); // Start the initial evolving of shape.
+    }
+  }
+
+  Form(Form prev) // Take the previous shape and evolve with the previous shape.
+  {
+    centerPoint = new PVector(width/2, height/2);
+    evolve(prev);
+  }
+
+  // First State ( representing every day routine)
+  void evolveInitial() 
+  {
+    float angle = radians(360/ float(sides));
+    for (int i=0; i < sides; i++) {
+      x1[i] = cos(angle*i) * radius;
+      y1[i] = sin(angle*i) * radius;
+    }
+  }
+
+  void evolve(Form prev) {
+    for (int i=0; i < sides; i++) {
+      x1[i] = prev.x1[i]+random (-variance/2, variance/2);
+      y1[i] = prev.y1[i]+random (-variance/2, variance/2);
+    }
+  }
+  void displayForm() // Display Form
+  {
+    noFill();
+    strokeWeight(0.5);
+    smooth();
+    stroke(255, 100);
+    pushMatrix();
+    translate(centerPoint.x, centerPoint.y);
+    scale(1, 1, 1);
+   
+    beginShape();
+    curveVertex(x1[sides-2], y1[sides-2], 0);
+    for (int i=0; i < sides; i++) {
+      curveVertex(x1[i], y1[i], 0);
+    }
+    curveVertex(x1[0], y1[0], 0);
+    curveVertex(x1[1], y1[1], 0);
+    endShape();
+    popMatrix();
+  }
+
+  void displayFormGradient() // Gradient for Death
+  {
+    noFill();
+    strokeWeight(0.5);
+    smooth();
+    stroke(gradientColor);
+    pushMatrix();
+    translate(centerPoint.x, centerPoint.y);
+    scale(1, 1, 1);
+    beginShape();
+    curveVertex(x1[sides-1]/3, y1[sides-1]/3);
+    for (int i=0; i < sides; i++) {
+      curveVertex(x1[i], y1[i], 0);
+    }
+    curveVertex(x1[0], y1[0], 0);
+    curveVertex(x1[1], y1[1], 0);
+    endShape();
+    popMatrix();
+  }
+
+  void manipulateForm(float deathScalar) // Manipulation of Death form.
+  {
+
+    for (int i=0; i < sides; i++) {
+
+      //x1[i] +=random(-1.0, 1.0); // Wiggle random between -1, 1 on x-axis.
+      //y1[i] +=random(-1.0, 1.0); // Wiggle random between -1, 1 on y-axis.
+      if(deathScalar<0) //if month death rate is negative, it moves on x, if positive move on y.
+      {
+      
+      x1[i] +=random(deathScalar, -deathScalar);
+      //y1[i] +=random(deathScalar, -deathScalar);
+      }
+      
+     else
+      {
+      
+      //x1[i] +=random(-deathScalar, deathScalar);
+      y1[i] +=random(-deathScalar, deathScalar);
+      }
+      
+
+      smooth();
+      stroke(gradientColor); 
+      strokeWeight(0.5);  
+      color from = color(205); // Go from white color
+      color to = color(0); // To black
+      gradientColor = lerpColor(from, to, gradientIndex);
+      if (gradientIndex<1)
+      { 
+
+        gradientIndex+=.0005; //how fast color gradient should change.
+      }
+    }
+  }
+
+
+  // State of the pulsing movement.
+  void displayBreathing()
+  {
+    pushMatrix();
+    translate(centerPoint.x, centerPoint.y);
+    scale(scalar, scalar, 1);
+    beginShape();
+    curveVertex(x1[sides-2], y1[sides-2], 0);
+    for (int i=0; i < sides; i++) {
+      curveVertex(x1[i], y1[i], 0);
+    }
+    curveVertex(x1[0], y1[0], 0);
+    curveVertex(x1[1], y1[1], 0);
+    endShape();
+    popMatrix();
+
+    color from = color(211, 100); // Go from white color
+    color to = color(21, 60, 128, 50); // To blue color
+   // println(breathingGradient);
+    gradientColorTwo = lerpColor(from, to, breathingGradient);
+
+    noFill();
+    smooth();
+    stroke(gradientColorTwo);
+    strokeWeight(0.5);
+
+    if (gradientIndex<1)
+    { 
+
+      gradientIndex+=.0003; //how fast color gradient should change.
+    }
+  }
+}
